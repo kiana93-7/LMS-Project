@@ -6,7 +6,6 @@ class Education(models.Model):
     EducationName = models.CharField(max_length=40, db_column='EducationName', verbose_name="نام مدرک")
 
     class Meta:
-        managed = False
         db_table = 'Education'
         ordering = ['ID']
         verbose_name = "مدرک تحصیلی"
@@ -31,7 +30,6 @@ class Person(models.Model):
     EducationID = models.ForeignKey(Education, on_delete=models.DO_NOTHING, db_column='EducationID', verbose_name="مدرک تحصیلی")
 
     class Meta:
-        managed = False
         db_table = 'Person'
         ordering = ['ID']
         verbose_name = "شخص"
@@ -49,7 +47,6 @@ class Student(models.Model):
     WorkPhone = models.CharField(max_length=15, null=True, blank=True, db_column='WorkPhone', verbose_name="تلفن محل کار")
 
     class Meta:
-        managed = False
         db_table = 'Student'
         ordering = ['PersonID']
         verbose_name = "دانشجو"
@@ -68,7 +65,6 @@ class Teacher(models.Model):
     AccountNumber = models.CharField(max_length=16, null=True, blank=True, db_column='AccountNumber', verbose_name="شماره حساب")
 
     class Meta:
-        managed = False
         db_table = 'Teacher'
         ordering = ['PersonID']
         verbose_name = "استاد"
@@ -84,7 +80,6 @@ class CourseCategory(models.Model):
     EnglishCourseCategoryName = models.CharField(max_length=50, db_column='EnglishCourseCategoryName', verbose_name="نام دسته‌بندی (انگلیسی)")
 
     class Meta:
-        managed = False
         db_table = 'CourseCategory'
         ordering = ['ID']
         verbose_name = "دسته‌بندی دوره"
@@ -107,7 +102,6 @@ class Course(models.Model):
     CourseCategoryID = models.ForeignKey(CourseCategory, on_delete=models.DO_NOTHING, db_column='CourseCategoryID', verbose_name="دسته‌بندی")
     TeacherID = models.ForeignKey(Teacher, on_delete=models.DO_NOTHING, null=True, blank=True, db_column='TeacherID',verbose_name="استاد")
     class Meta:
-        managed = False
         db_table = 'Course'
         ordering = ['ID']
         verbose_name = "دوره"
@@ -127,7 +121,6 @@ class StudentCourseTeacher(models.Model):
     Score = models.SmallIntegerField(db_column='Score', verbose_name="نمره")
 
     class Meta:
-        managed = False
         db_table = 'Student_Course_Teacher'
         ordering = ['id']
         verbose_name = "ثبت‌نام"
@@ -145,7 +138,6 @@ class Certification(models.Model):
     Startdate = models.DateField(db_column='Startdate', verbose_name="تاریخ صدور")
 
     class Meta:
-        managed = False
         db_table = 'Certification'
         ordering = ['ID']
         verbose_name = "مدرک"
@@ -162,7 +154,6 @@ class TeacherCertification(models.Model):
     Expiredate = models.DateField(null=True, blank=True, db_column='Expiredate', verbose_name="تاریخ انقضا")
 
     class Meta:
-        managed = False
         db_table = 'Teacher_Certification'
         ordering = ['TeacherID', 'CertificationID']
         verbose_name = "مدرک استاد"
