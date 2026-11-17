@@ -1,0 +1,116 @@
+{% extends '_base.html' %}
+{% block page_title %}دوره‌های من{% endblock %}
+
+{% block content %}
+<style>
+    .enrollment-item {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #E3F2FD;
+        padding: 20px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(34, 58, 94, 0.03);
+    }
+
+    .enrollment-item:hover {
+        border-color: #9FC0E3;
+        box-shadow: 0 8px 25px rgba(53, 89, 130, 0.08);
+        transform: translateX(-5px);
+    }
+
+    .course-icon {
+        width: 50px; height: 50px;
+        background: #F3F8FD;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: #355982;
+        font-size: 1.4rem;
+        margin-left: 20px;
+    }
+
+    .course-info h5 {
+        font-weight: 800;
+        color: #223A5E;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+    }
+
+    .course-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #6E9ECC;
+        font-weight: 600;
+    }
+
+    .badge-score {
+        background: #E8F5E9;
+        color: #2E7D32;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1rem;
+        border: 1px solid #A5D6A7;
+    }
+
+    .badge-pending {
+        background: #FFF8E1;
+        color: #F57C00;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        border: 1px solid #FFE082;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #223A5E;">
+                <i class="bi bi-journal-bookmark-fill me-2" style="color: #6E9ECC;"></i> دوره‌های من
+            </h3>
+            <p class="text-muted mb-0">خوش آمدید <strong>{{ student_name }}</strong>، لیست دوره‌های ثبت‌نام شده شما در زیر آمده است.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            {% for enrollment in enrollments %}
+            <div class="enrollment-item">
+                <div class="d-flex align-items-center">
+                    <div class="course-icon">
+                        <i class="bi bi-journal-code"></i>
+                    </div>
+                    <div class="course-info">
+                        <h5>{{ enrollment.CourseID.CourseName }}</h5>
+                        <p>
+                            <i class="bi bi-person-badge me-1"></i> استاد: {{ enrollment.TeacherID.PersonID.PersianLastName|default:"نامشخص" }}
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-calendar3 me-1"></i> ترم: {{ enrollment.TermNumber }}
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    {% if enrollment.Score > 0 %}
+                        <span class="badge-score">نمره: {{ enrollment.Score }}</span>
+                    {% else %}
+                        <span class="badge-pending"><i class="bi bi-hourglass-split me-1"></i> در حال گذراندن</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-info rounded-4 shadow-sm border-0 text-center p-5">
+                <i class="bi bi-info-circle-fill fs-1 mb-3 d-block text-primary"></i>
+                <h5 class="fw-bold">شما در هیچ دوره‌ای ثبت‌نام نکرده‌اید.</h5>
+                <p class="text-muted mb-0">برای شروع، به لیست دوره‌ها بروید و در یک دوره ثبت‌نام کنید.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

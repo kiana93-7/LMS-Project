@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+{% block page_title %}حذف دسته‌بندی{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-danger text-white text-center py-3"><h4 class="mb-0">حذف دسته‌بندی</h4></div>
+            <div class="card-body p-4 text-center">
+                <p class="fs-5">آیا از حذف دسته‌بندی <strong>"{{ category.CourseCategoryName }}"</strong> مطمئن هستید؟</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-danger rounded-pill">بله، حذف کن</button>
+                        <a href="{% url 'category_list' %}" class="btn btn-outline-secondary rounded-pill">انصراف</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

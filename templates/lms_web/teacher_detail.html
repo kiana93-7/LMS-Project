@@ -1,0 +1,105 @@
+{% extends '_base.html' %}
+{% block page_title %}جزئیات استاد{% endblock %}
+{% block content %}
+<style>
+    /* استایل اختصاصی برای صفحه جزئیات استاد */
+    .teacher-header {
+        background: linear-gradient(135deg, #A4C4E6 0%, #7A9CC6 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 40px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .teacher-header::before {
+        content: '';
+        position: absolute;
+        top: -50px; left: -50px;
+        width: 200px; height: 200px;
+        background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .teacher-header h2 {
+        font-weight: 800;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 1;
+    }
+    .teacher-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .course-item-card {
+        border-radius: 15px;
+        border: 1px solid var(--border);
+        background-color: var(--bg-main);
+        transition: all 0.3s ease;
+    }
+    .course-item-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(53, 89, 130, 0.1);
+        border-color: var(--secondary);
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+        <!-- هدر استاد (آبی پاستیلی) -->
+        <div class="teacher-header">
+            <h2>{{ teacher.PersonID.PersianFirstName }} {{ teacher.PersonID.PersianLastName }}</h2>
+            <p>استاد دوره‌های آموزشی</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <h5 class="text-primary border-bottom pb-2 mb-4 fw-bold">
+                <i class="bi bi-journal-bookmark-fill me-2"></i> دوره‌هایی که تدریس می‌کند:
+            </h5>
+
+            <div class="row">
+                {% for course in courses %}
+                <div class="col-md-4 mb-4">
+                    <div class="card course-item-card h-100 shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h6 class="card-title text-primary fw-bold mb-3">{{ course.CourseName }}</h6>
+                            <p class="card-text text-muted small mb-4" style="line-height: 1.6;">
+                                {{ course.Description|truncatechars:80 }}
+                            </p>
+
+                            <!-- دکمه‌ها (شرط ادمین/دانشجو) -->
+                            <div class="mt-auto d-grid gap-2">
+                                <a href="{% url 'course_detail' course.pk %}" class="btn btn-sm btn-outline-primary rounded-pill fw-bold">
+                                    <i class="bi bi-info-circle me-1"></i> مشاهده جزئیات
+                                </a>
+                                {% if not user.is_superuser %}
+                                    <a href="{% url 'enrollment' %}?course_id={{ course.pk }}" class="btn btn-sm btn-warning rounded-pill fw-bold">
+                                        <i class="bi bi-journal-check me-1"></i> ثبت‌نام در دوره
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">این استاد در حال حاضر هیچ دوره‌ای تدریس نمی‌کند.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- دکمه بازگشت -->
+            <div class="mt-5 text-center border-top pt-4">
+                <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-right me-1"></i> بازگشت به لیست اساتید
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

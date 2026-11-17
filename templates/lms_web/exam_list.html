@@ -1,0 +1,217 @@
+{% extends '_base.html' %}
+{% block page_title %}مدیریت آزمون‌ها{% endblock %}
+
+{% block content %}
+<style>
+    /* ========================================= */
+    /* انیمیشن ورود نرم و پلکانی */
+    /* ========================================= */
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-page {
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    /* ========================================= */
+    /* طراحی خاص کارت‌های دوره */
+    /* ========================================= */
+
+    .course-list-item {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #F0F5FA;
+        box-shadow: 0 4px 15px rgba(34, 58, 94, 0.03);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 20px;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* نوار رنگی گرادیانت سمت راست */
+    .course-list-item::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 6px;
+        background: linear-gradient(180deg, #9FC0E3 0%, #355982 100%);
+        transition: width 0.3s ease;
+    }
+
+    /* افکت هاور */
+    .course-list-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(53, 89, 130, 0.1);
+        border-color: #D0E1F2;
+    }
+
+    .course-list-item:hover::before {
+        width: 10px;
+    }
+
+    /* آیکون دوره */
+    .course-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: #F3F8FD;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: #355982;
+        transition: all 0.4s ease;
+        flex-shrink: 0;
+    }
+
+    .course-list-item:hover .course-icon-wrapper {
+        background: #355982;
+        color: #fff;
+        transform: scale(1.05) rotate(-5deg);
+    }
+
+    /* اطلاعات دوره */
+    .course-info {
+        flex-grow: 1;
+        padding: 0 25px;
+    }
+
+    .course-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #223A5E;
+        margin-bottom: 6px;
+    }
+
+    .course-meta {
+        font-size: 0.85rem;
+        color: #6E9ECC;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .course-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* بخش دکمه */
+    .action-btn-wrapper {
+        flex-shrink: 0;
+    }
+
+    .btn-manage {
+        background: #F8FBFF;
+        color: #355982;
+        border: 1px solid #D0E1F2;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .course-list-item:hover .btn-manage {
+        background: #355982;
+        color: #fff;
+        border-color: #355982;
+        box-shadow: 0 4px 15px rgba(53, 89, 130, 0.25);
+    }
+
+    /* هدر صفحه */
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #223A5E;
+    }
+
+    /* ریسپانسیو برای موبایل */
+    @media (max-width: 768px) {
+        .course-list-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+        .course-info {
+            padding: 0;
+        }
+        .action-btn-wrapper {
+            width: 100%;
+        }
+        .btn-manage {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container mt-5 mb-5 animate-page">
+    <!-- هدر صفحه -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div>
+            <h2 class="page-title mb-1">
+                <i class="bi bi-clipboard-check me-2" style="color: #6E9ECC;"></i> مدیریت آزمون‌ها
+            </h2>
+            <p class="text-muted mb-0 fs-5">دوره مورد نظر را انتخاب کنید تا نمرات را مدیریت کنید.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm">
+                <i class="bi bi-shield-lock text-primary me-1"></i> دسترسی ادمین
+            </span>
+        </div>
+    </div>
+
+    <!-- لیست دوره‌ها -->
+    <div class="row">
+        <div class="col-12">
+            {% for course in courses %}
+
+            <a href="{% url 'exam_detail' course.ID %}" class="course-list-item">
+                <!-- آیکون -->
+                <div class="course-icon-wrapper">
+                    <i class="bi bi-journal-code"></i>
+                </div>
+
+                <!-- اطلاعات -->
+                <div class="course-info">
+                    <div class="course-name">{{ course.CourseName }}</div>
+                    <div class="course-meta">
+                        <span><i class="bi bi-hash"></i> کد دوره: {{ course.CourseCode }}</span>
+                        <span><i class="bi bi-person-badge"></i> استاد: {{ course.TeacherID.PersonID.PersianLastName|default:"تعیین نشده" }}</span>
+                    </div>
+                </div>
+
+                <!-- دکمه -->
+                <div class="action-btn-wrapper">
+                    <div class="btn-manage">
+                        ورود به آزمون‌ها <i class="bi bi-arrow-left"></i>
+                    </div>
+                </div>
+            </a>
+
+            {% empty %}
+            <div class="alert alert-info rounded-4 shadow-sm border-0 p-5 text-center">
+                <i class="bi bi-info-circle-fill fs-1 mb-3 d-block text-primary"></i>
+                <h5 class="fw-bold">دوره‌ای یافت نشد</h5>
+                <p class="text-muted mb-0">هیچ دوره‌ای با دانشجوی ثبت‌نام شده وجود ندارد.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

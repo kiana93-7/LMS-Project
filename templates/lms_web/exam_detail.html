@@ -1,0 +1,306 @@
+{% extends '_base.html' %}
+{% block page_title %}آزمون‌های {{ course.CourseName }}{% endblock %}
+
+{% block content %}
+<style>
+    /* ========================================= */
+    /* انیمیشن‌های Motion (ورود و هاور) */
+    /* ========================================= */
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes floatCard {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0px); }
+    }
+
+    /* انیمیشن ورود صفحه */
+    .animate-page {
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    /* انیمیشن ورود کارت‌ها با تاخیر */
+    .exam-item-card {
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        /* موشن شناور دائمی */
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, floatCard 4s ease-in-out infinite;
+    }
+
+    /* تاخیر پلکانی */
+    .col-lg-4:nth-child(1) .exam-item-card { animation-delay: 0.1s, 0s; }
+    .col-lg-4:nth-child(2) .exam-item-card { animation-delay: 0.2s, 1s; }
+    .col-lg-4:nth-child(3) .exam-item-card { animation-delay: 0.3s, 2s; }
+
+    /* ========================================= */
+    /* استایل‌های خاص */
+    /* ========================================= */
+
+    /* فرم ساخت آزمون */
+    .create-exam-box {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(208, 225, 242, 0.8);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 15px 35px rgba(34, 58, 94, 0.05);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .create-exam-box:hover {
+        box-shadow: 0 20px 45px rgba(34, 58, 94, 0.1);
+        border-color: #9FC0E3;
+    }
+
+    /* افکت نور در فرم */
+    .create-exam-box::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(159, 192, 227, 0.15) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+    }
+    .create-exam-box:hover::before { opacity: 1; }
+
+    /* فیلدهای فرم */
+    .custom-input {
+        background: #F8FBFF !important;
+        border: 2px solid #E3F2FD !important;
+        border-radius: 14px !important;
+        padding: 15px 20px !important;
+        font-weight: 600;
+        color: #223A5E !important;
+        transition: all 0.3s ease !important;
+    }
+    .custom-input:focus {
+        border-color: #6E9ECC !important;
+        box-shadow: 0 0 0 4px rgba(110, 158, 204, 0.15) !important;
+        background: #fff !important;
+    }
+
+    /* دکمه ساخت آزمون */
+    .btn-create {
+        background: linear-gradient(135deg, #355982 0%, #223A5E 100%);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 15px 30px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    .btn-create::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: all 0.5s ease;
+        z-index: -1;
+    }
+    .btn-create:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(53, 89, 130, 0.3);
+        color: #fff;
+    }
+    .btn-create:hover::after { left: 100%; }
+
+    /* کارت‌های آزمون */
+    .exam-item-card {
+        background: #fff;
+        border-radius: 24px;
+        border: 1px solid #E3F2FD;
+        box-shadow: 0 10px 30px rgba(34, 58, 94, 0.04);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* نوار رنگی کناری */
+    .exam-item-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 6px;
+        background: linear-gradient(180deg, #6E9ECC 0%, #355982 100%);
+        transition: width 0.3s ease;
+    }
+
+    .exam-item-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(53, 89, 130, 0.15);
+        border-color: #9FC0E3;
+    }
+
+    .exam-item-card:hover::before {
+        width: 10px;
+    }
+
+    /* آیکون مدرک */
+    .exam-icon-box {
+        width: 60px; height: 60px;
+        background: #F3F8FD;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.6rem;
+        color: #355982;
+        transition: all 0.4s ease;
+    }
+
+    .exam-item-card:hover .exam-icon-box {
+        background: #355982;
+        color: #fff;
+        transform: rotate(-10deg) scale(1.1);
+        box-shadow: 0 10px 20px rgba(53, 89, 130, 0.2);
+    }
+
+    /* بج نمره کل */
+    .score-badge {
+        background: #F3F8FD;
+        color: #355982;
+        border: 1px solid #D0E1F2;
+        padding: 6px 15px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .exam-item-card:hover .score-badge {
+        background: #E3F2FD;
+        border-color: #9FC0E3;
+    }
+
+    /* دکمه ثبت نمرات */
+    .btn-grades {
+        background: #fff;
+        color: #355982;
+        border: 2px solid #D0E1F2;
+        border-radius: 14px;
+        padding: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-grades:hover {
+        background: #355982;
+        color: #fff;
+        border-color: #355982;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(53, 89, 130, 0.2);
+    }
+
+    /* هدر صفحه */
+    .page-header-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #223A5E;
+        letter-spacing: -1px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="container mt-5 mb-5 animate-page">
+    <!-- هدر صفحه -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div>
+            <h2 class="page-header-title">
+                <i class="bi bi-pencil-square me-2" style="color: #6E9ECC;"></i> آزمون‌های دوره
+            </h2>
+            <p class="text-muted mb-0 fs-5">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill me-2">{{ course.CourseName }}</span>
+                مدیریت و ثبت نمرات دانشجویان
+            </p>
+        </div>
+        <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold" style="border: 2px solid #D0E1F2; color: #355982;">
+            <i class="bi bi-arrow-right me-1"></i> بازگشت
+        </a>
+    </div>
+
+    <!-- فرم ساخت آزمون جدید -->
+    <div class="create-exam-box mb-5">
+        <h5 class="fw-bold mb-4" style="color: #223A5E;">
+            <i class="bi bi-plus-circle me-2" style="color: #6E9ECC;"></i> ایجاد آزمون جدید
+        </h5>
+        <form method="post" class="row g-3 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-5">
+                <label class="form-label text-muted small fw-bold mb-2">عنوان آزمون</label>
+                <input type="text" name="title" class="form-control custom-input" placeholder="مثلاً: میان‌ترم یا کوییز اول" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small fw-bold mb-2">نمره کل</label>
+                <input type="number" name="total_score" class="form-control custom-input text-center" value="100" min="1">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" name="create_exam" class="btn btn-create w-100">
+                    <i class="bi bi-check2-circle me-2"></i> افزودن آزمون
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- لیست آزمون‌ها -->
+    <h5 class="fw-bold mb-4" style="color: #223A5E;">
+        <i class="bi bi-list-stars me-2" style="color: #6E9ECC;"></i> آزمون‌های ثبت شده
+    </h5>
+
+    <div class="row g-4">
+        {% for exam in exams %}
+        <div class="col-md-6 col-lg-4">
+            <div class="exam-item-card">
+                <div class="p-4 d-flex flex-column h-100">
+                    <!-- هدر کارت -->
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="exam-icon-box">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <span class="score-badge">نمره کل: {{ exam.TotalScore }}</span>
+                    </div>
+
+                    <!-- عنوان -->
+                    <h4 class="fw-bold mb-1" style="color: #223A5E; font-size: 1.3rem;">{{ exam.Title }}</h4>
+                    <p class="text-muted small mb-4">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        {% if exam.ExamDate %}{{ exam.ExamDate }}{% else %}تاریخ ثبت نشده{% endif %}
+                    </p>
+
+                    <!-- دکمه -->
+                    <div class="mt-auto">
+                        <a href="{% url 'exam_grade' exam.id %}" class="btn-grades">
+                            <i class="bi bi-pencil-square me-2"></i> ثبت و ویرایش نمرات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning rounded-4 border-0 shadow-sm p-4 text-center">
+                <i class="bi bi-exclamation-triangle-fill fs-1 text-warning mb-3 d-block"></i>
+                <h5 class="fw-bold text-dark">هنوز آزمونی ساخته نشده است</h5>
+                <p class="text-muted mb-0">از فرم بالا استفاده کنید تا اولین آزمون را ایجاد کنید.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

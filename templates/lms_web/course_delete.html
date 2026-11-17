@@ -1,0 +1,167 @@
+{% extends '_base.html' %}
+
+{% block page_title %}حذف دوره{% endblock %}
+
+{% block content %}
+<style>
+    /* پالت رنگی Holst */
+    :root {
+        --holst-900: #223A5E;
+        --holst-800: #355982;
+        --holst-700: #4D79A8;
+        --holst-600: #6E9ECC;
+        --holst-500: #9FC0E3;
+        --holst-400: #D0E1F2;
+        --holst-100: #F3F8FD;
+    }
+
+    /* انیمیشن ورود کارت */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* پس‌زمینه و کانتینر */
+    .delete-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--holst-100);
+        padding: 20px;
+    }
+
+    .delete-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 500px;
+        border-radius: 24px;
+        border: 1px solid var(--holst-400);
+        box-shadow: 0 20px 50px rgba(34, 58, 94, 0.1);
+        overflow: hidden;
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    /* هدر کارت با رنگ پاستیلی ملایم */
+    .delete-header {
+        background: #FDE8E9; /* صورتی پاستیلی */
+        padding: 30px 20px;
+        text-align: center;
+        border-bottom: 1px solid #F8D7DA;
+    }
+
+    .delete-header i {
+        font-size: 3rem;
+        color: #D96C75; /* قرمز پاستیلی */
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .delete-header h4 {
+        margin: 0;
+        color: #9C3D45;
+        font-weight: 800;
+    }
+
+    /* بدنه کارت */
+    .delete-body {
+        padding: 40px 30px;
+        text-align: center;
+    }
+
+    .delete-body p {
+        font-size: 1.1rem;
+        color: var(--holst-900);
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+
+    .delete-body strong {
+        color: var(--holst-800);
+        font-size: 1.2rem;
+    }
+
+    .warning-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 30px;
+    }
+
+    /* دکمه‌ها */
+    .btn-delete-confirm {
+        background: #F8B4B8; /* صورتی-قرمز پاستیلی */
+        color: #9C3D45;
+        border: none;
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .btn-delete-confirm:hover {
+        background: #F49CA1;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(248, 180, 184, 0.4);
+    }
+
+    .btn-cancel {
+        background: var(--holst-100);
+        color: var(--holst-700);
+        border: 1px solid var(--holst-400);
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-decoration: none;
+        display: block;
+    }
+    .btn-cancel:hover {
+        background: var(--holst-400);
+        color: var(--holst-900);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="delete-wrapper">
+    <div class="delete-card">
+
+        <!-- هدر با آیکون هشدار -->
+        <div class="delete-header">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <h4>حذف دوره</h4>
+        </div>
+
+        <!-- بدنه -->
+        <div class="delete-body">
+            <p>
+                آیا از حذف دوره
+                <br>
+                <strong>«{{ course.CourseName }}»</strong>
+                <br>
+                مطمئن هستید؟
+            </p>
+            <div class="warning-text">
+                <i class="bi bi-info-circle me-1"></i>
+                این عملیات قابل بازگشت نیست.
+            </div>
+
+            <!-- دکمه‌ها -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn-delete-confirm">
+                        <i class="bi bi-trash me-2"></i> بله، حذف کن
+                    </button>
+                    <a href="{% url 'course_list' %}" class="btn-cancel">
+                        انصراف و بازگشت
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

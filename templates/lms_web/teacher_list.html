@@ -1,0 +1,137 @@
+{% extends '_base.html' %}
+{% block page_title %}لیست اساتید{% endblock %}
+
+{% block content %}
+
+<style>
+    .teacher-actions {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .teacher-actions .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+        margin: 0;
+        padding: 8px;
+        min-width: 130px;
+        z-index: 9999;
+        border-radius: 12px;
+        border: 1px solid #D0E1F2;
+        background-color: #FFFFFF;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .teacher-actions:hover .dropdown-menu {
+        display: block;
+    }
+
+    .teacher-actions .dropdown-item {
+        padding: 8px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .teacher-actions .dropdown-item:hover {
+        background-color: #F3F8FD;
+    }
+
+    .teacher-actions button {
+        border-radius: 8px;
+    }
+
+    .table tbody tr:has(.teacher-actions:hover) {
+        position: relative;
+        z-index: 20;
+    }
+
+    .card,
+    .card-body {
+        overflow: visible;
+    }
+
+    /* استایل برای برچسب دوره‌ها */
+    .course-badge {
+        background-color: #F3F8FD;
+        color: #355982;
+        border: 1px solid #D0E1F2;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        margin: 2px;
+        display: inline-block;
+    }
+</style>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary mb-0">لیست اساتید</h3>
+        {% if user.is_superuser %}
+            <a href="{% url 'teacher_create' %}" class="btn btn-primary rounded-pill">+ افزودن استاد جدید</a>
+        {% endif %}
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="py-3 px-4">نام</th>
+                        <th class="py-3 px-4">نام خانوادگی</th>
+                        <th class="py-3 px-4">دوره‌های تدریس</th> <!-- 👈 ستون جدید -->
+                        {% if user.is_superuser %}
+                            <th class="py-3 px-4">کد ملی</th>
+                            <th class="py-3 px-4" style="width: 100px;">عملیات</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td class="py-3 px-4">{{ teacher.PersonID.PersianFirstName }}</td>
+                        <td class="py-3 px-4">{{ teacher.PersonID.PersianLastName }}</td>
+                        
+                        <!-- 👇 نمایش دوره‌های استاد 👇 -->
+                        <td class="py-3 px-4">
+                            {% for course in teacher.courses_list %}
+                                <span class="course-badge">{{ course.CourseName }}</span>
+                            {% empty %}
+                                <span class="text-muted small">هیچ دوره‌ای ندارد</span>
+                            {% endfor %}
+                        </td>
+
+                        {% if user.is_superuser %}
+                            <td class="py-3 px-4">{{ teacher.PersonID.NationalCode }}</td>
+                            <td class="py-3 px-4">
+                                <div class="teacher-actions">
+                                    <button type="button" class="btn btn-sm btn-light border-0">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-info" href="{% url 'teacher_detail' teacher.pk %}"><i class="bi bi-eye me-1"></i> جزئیات</a></li>
+                                        <li><a class="dropdown-item text-warning" href="{% url 'teacher_update' teacher.pk %}"><i class="bi bi-pencil me-1"></i> ویرایش</a></li>
+                                        <li><a class="dropdown-item text-danger" href="{% url 'teacher_delete' teacher.pk %}"><i class="bi bi-trash me-1"></i> حذف</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.is_superuser %}5{% else %}3{% endif %}" class="text-center py-5">هیچ استادی در سیستم ثبت نشده است.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

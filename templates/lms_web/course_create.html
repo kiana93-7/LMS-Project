@@ -1,0 +1,245 @@
+{% extends '_base.html' %}
+
+{% block page_title %}افزودن / ویرایش دوره{% endblock %}
+
+{% block content %}
+<style>
+    /* --- انیمیشن‌های اختصاصی این صفحه --- */
+    @keyframes zoomInFade {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes floatLabel {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0); }
+    }
+
+    /* پس‌زمینه ملایم برای کل صفحه */
+    .course-form-wrapper {
+        background: linear-gradient(180deg, #F3F8FD 0%, #FFFFFF 100%);
+        min-height: 85vh;
+        padding: 40px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* کارت اصلی با سایه و گوشه‌های گرد */
+    .course-card {
+        background: #FFFFFF;
+        width: 100%;
+        max-width: 800px;
+        border-radius: 24px;
+        box-shadow: 0 15px 40px rgba(53, 89, 130, 0.08);
+        border: 1px solid var(--border);
+        overflow: hidden;
+
+        /* انیمیشن ورود Zoom-in */
+        animation: zoomInFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* هدر کارت با گرادیانت تیره */
+    .course-header {
+        background: linear-gradient(135deg, #223A5E 0%, #1a2e4a 100%);
+        padding: 30px 20px;
+        text-align: center;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .course-header::before {
+        content: '\F2E6';
+        font-family: 'bootstrap-icons';
+        font-size: 120px;
+        position: absolute;
+        top: -30px; right: -20px;
+        opacity: 0.05;
+        transform: rotate(-15deg);
+    }
+    .course-header h4 {
+        margin: 0;
+        font-weight: 800;
+        font-size: 1.5rem;
+        z-index: 1;
+        position: relative;
+    }
+    .course-header p {
+        margin: 5px 0 0 0;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        z-index: 1;
+        position: relative;
+    }
+
+    /* بدنه فرم */
+    .course-body {
+        padding: 40px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+    /* استایل فیلدها */
+    .form-control, .form-select {
+        border-radius: 12px !important;
+        border: 1px solid var(--border) !important;
+        padding: 0.9rem 1rem !important;
+        background-color: #F8FAFC !important;
+        color: var(--text-dark) !important;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* افکت بالا پریدن فیلدها هنگام کلیک */
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px rgba(53, 89, 130, 0.1) !important;
+        background-color: #fff !important;
+        transform: translateY(-4px);
+    }
+
+    .form-select {
+        background-position: left 1rem center !important;
+        padding-left: 2.5rem !important;
+    }
+
+    /* دکمه‌ها */
+    .btn-save {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 14px;
+        font-size: 1.05rem;
+        font-weight: bold;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* افکت درخشش نورانی روی دکمه */
+    .btn-save::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s ease;
+    }
+    .btn-save:hover::before {
+        left: 100%;
+    }
+
+    .btn-save:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(53, 89, 130, 0.25);
+    }
+
+    .btn-back {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .btn-back:hover {
+        color: var(--primary);
+    }
+</style>
+
+<div class="container course-form-wrapper">
+    <div class="course-card">
+
+        <!-- هدر -->
+        <div class="course-header">
+            <h4><i class="bi bi-journal-plus me-2"></i> اطلاعات دوره</h4>
+            <p>لطفاً اطلاعات دوره را با دقت وارد کنید</p>
+        </div>
+
+        <!-- بدنه فرم -->
+        <div class="course-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row g-4">
+                    <!-- نام دوره -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.CourseName.label }}</label>
+                        {{ form.CourseName }}
+                        {% for error in form.CourseName.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- نام دوره (انگلیسی) -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.EnglishCourseName.label }}</label>
+                        {{ form.EnglishCourseName }}
+                        {% for error in form.EnglishCourseName.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- کد دوره -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.CourseCode.label }}</label>
+                        {{ form.CourseCode }}
+                        {% for error in form.CourseCode.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- مدت (ساعت) -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.Duration.label }}</label>
+                        {{ form.Duration }}
+                        {% for error in form.Duration.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- نوع دوره -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.CourseType.label }}</label>
+                        {{ form.CourseType }}
+                        {% for error in form.CourseType.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- دسته‌بندی دوره -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.CourseCategoryID.label }}</label>
+                        {{ form.CourseCategoryID }}
+                        {% for error in form.CourseCategoryID.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- استاد دوره -->
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.TeacherID.label }}</label>
+                        {{ form.TeacherID }}
+                        {% for error in form.TeacherID.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- توضیحات -->
+                    <div class="col-12">
+                        <label class="form-label">{{ form.Description.label }}</label>
+                        {{ form.Description }}
+                        {% for error in form.Description.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-4" style="border-color: var(--border); opacity: 0.5;">
+
+                <!-- دکمه‌ها -->
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check2-circle me-2"></i> ذخیره دوره
+                    </button>
+                    <div class="text-center">
+                        <a href="{% url 'course_list' %}" class="btn-back">بازگشت به لیست دوره‌ها</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

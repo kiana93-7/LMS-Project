@@ -1,0 +1,160 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block page_title %}
+ثبت‌نام در سایت
+{% endblock %}
+
+{% block content %}
+<style>
+    /* استایل اختصاصی برای صفحه ثبت‌نام (تم آبی پاستیلی) */
+    .signup-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .signup-card {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(53, 89, 130, 0.1);
+        background: #fff;
+        width: 100%;
+        max-width: 900px;
+    }
+    .signup-side {
+        background: linear-gradient(135deg, #A4C4E6 0%, #7A9CC6 100%); /* آبی پاستیلی */
+        color: #fff;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+    }
+    .signup-side::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="bubbles" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="15" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="60" r="25" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23bubbles)"/></svg>');
+        opacity: 0.5;
+    }
+    .signup-side h3 {
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+    .signup-side p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        position: relative;
+        z-index: 1;
+    }
+    .signup-form-area {
+        padding: 50px 40px;
+    }
+    .signup-form-area h2 {
+        color: #355982;
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .signup-form-area .form-label {
+        font-weight: 600;
+        color: #4D79A8;
+        margin-bottom: 8px;
+    }
+    .signup-form-area input {
+        border-radius: 12px !important;
+        border: 1px solid #D0E1F2 !important;
+        padding: 12px 15px !important;
+        background-color: #F8FBFF !important;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .signup-form-area input:focus {
+        border-color: #7A9CC6 !important;
+        box-shadow: 0 0 0 0.25rem rgba(122, 156, 198, 0.25) !important;
+        background-color: #fff !important;
+    }
+    .btn-signup {
+        background: linear-gradient(135deg, #7A9CC6 0%, #5C85AD 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 14px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    .btn-signup:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(92, 133, 173, 0.4);
+    }
+    .error-list {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        padding-right: 15px;
+        list-style-type: disc;
+    }
+</style>
+
+<div class="container signup-container">
+    <div class="card signup-card border-0">
+        <div class="row g-0">
+
+            <!-- سمت راست: گرافیک و متن -->
+            <div class="col-md-5 signup-side text-center">
+                <h3>به جمع ما بپیوندید!</h3>
+                <p>با ساختن یک حساب کاربری، به تمام دوره‌های آموزشی ما دسترسی پیدا کنید و مسیر یادگیری خود را آغاز کنید.</p>
+                <div class="mt-4">
+                    <i class="bi bi-mortarboard-fill" style="font-size: 5rem; opacity: 0.8;"></i>
+                </div>
+            </div>
+
+            <!-- سمت چپ: فرم ثبت‌نام -->
+            <div class="col-md-7 signup-form-area">
+                <h2>ایجاد حساب کاربری</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+                            <!-- خود فیلد رو با استایل رندر می‌کنیم -->
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">{{ field.help_text }}</small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn-signup">
+                            <i class="bi bi-person-plus me-2"></i> ثبت‌نام
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted">حساب دارید؟</span>
+                    <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: #5C85AD;">وارد شوید</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

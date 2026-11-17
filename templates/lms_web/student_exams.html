@@ -1,0 +1,171 @@
+{% extends '_base.html' %}
+{% block page_title %}آزمون‌های من{% endblock %}
+
+{% block content %}
+<style>
+    /* استایل کارت‌های آزمون */
+    .exam-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #D0E1F2;
+        box-shadow: 0 5px 20px rgba(34, 58, 94, 0.04);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .exam-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(53, 89, 130, 0.12);
+        border-color: #9FC0E3;
+    }
+
+    .exam-header {
+        background: linear-gradient(135deg, #F3F8FD 0%, #E3F2FD 100%);
+        padding: 25px;
+        border-bottom: 1px dashed #D0E1F2;
+        position: relative;
+    }
+
+    .exam-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 6px;
+        height: 100%;
+        background: #6E9ECC;
+    }
+
+    .exam-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 25px;
+        border-bottom: 1px solid #F3F8FD;
+        transition: background 0.2s ease;
+    }
+
+    .exam-row:last-child {
+        border-bottom: none;
+    }
+
+    .exam-row:hover {
+        background: #FAFCFF;
+    }
+
+    .exam-title {
+        font-weight: 700;
+        color: #223A5E;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    .exam-meta {
+        font-size: 0.85rem;
+        color: #6E9ECC;
+        margin-top: 4px;
+    }
+
+    /* استایل بج نمره */
+    .score-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        min-width: 70px;
+    }
+
+    .score-success {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid #A5D6A7;
+    }
+
+    .score-pending {
+        background: #FFF8E1;
+        color: #F57C00;
+        border: 1px solid #FFE082;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 8px 12px;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <!-- هدر صفحه -->
+    <div class="mb-4 d-flex justify-content-between align-items-end">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #223A5E;">
+                <i class="bi bi-journal-check me-2" style="color: #6E9ECC;"></i> آزمون‌های من
+            </h3>
+            <p class="text-muted mb-0">خوش آمدید <strong>{{ student_name }}</strong>، در این بخش می‌توانید نمرات خود را مشاهده کنید.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm">
+                <i class="bi bi-person-badge text-primary me-1"></i> پنل دانشجو
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for item in courses_data %}
+        <div class="col-md-6 col-lg-6">
+            <div class="exam-card">
+                <!-- هدر دوره -->
+                <div class="exam-header">
+                    <h5 class="fw-bold mb-1" style="color: #223A5E;">{{ item.course_name }}</h5>
+                    <div class="d-flex align-items-center text-muted small">
+                        <i class="bi bi-person-video3 me-1"></i> استاد: {{ item.teacher }}
+                    </div>
+                </div>
+
+                <!-- لیست آزمون‌ها -->
+                <div class="p-0">
+                    {% if item.exams %}
+                        {% for exam in item.exams %}
+                        <div class="exam-row">
+                            <div>
+                                <h6 class="exam-title">{{ exam.title }}</h6>
+                                <div class="exam-meta">
+                                    <i class="bi bi-award me-1"></i> نمره کل: {{ exam.total_score }}
+                                </div>
+                            </div>
+                            <div>
+                                {% if exam.score is not None %}
+                                    <div class="score-badge score-success" title="نمره کسب شده">
+                                        {{ exam.score }}
+                                    </div>
+                                {% else %}
+                                    <div class="score-badge score-pending">
+                                        <i class="bi bi-hourglass-split me-1"></i> ثبت نشده
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="bi bi-info-circle fs-3 text-muted"></i>
+                            </div>
+                            <p class="text-muted mb-0">هنوز هیچ آزمونی برای این دوره برگزار نشده است.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="alert alert-info rounded-4 shadow-sm border-0">
+                <i class="bi bi-info-circle-fill fs-4 mb-2 d-block"></i>
+                شما در هیچ دوره‌ای ثبت‌نام نکرده‌اید.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

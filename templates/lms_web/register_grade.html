@@ -1,0 +1,256 @@
+{% extends '_base.html' %}
+
+{% block page_title %}ثبت نمره دانشجو{% endblock %}
+
+{% block content %}
+<style>
+    /* --- انیمیشن‌های اختصاصی این صفحه --- */
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulseBorder {
+        0% { box-shadow: 0 0 0 0 rgba(110, 158, 204, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(110, 158, 204, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(110, 158, 204, 0); }
+    }
+
+    .grade-wrapper {
+        position: relative;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #F8FAFC;
+        overflow: hidden;
+    }
+
+    .grade-wrapper::before {
+        content: '20 15 18 10 14 19 12 16 9 17 13 20 11 8 15';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        font-family: 'YekanWeb', sans-serif;
+        font-size: 150px;
+        font-weight: 900;
+        line-height: 1.2;
+        color: var(--primary);
+        opacity: 0.04;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+        z-index: 0;
+        pointer-events: none;
+        transform: rotate(-10deg) scale(1.1);
+    }
+
+    .grade-card {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 500px;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(53, 89, 130, 0.1);
+        border: 1px solid rgba(208, 225, 242, 0.8);
+        overflow: hidden;
+
+        /* انیمیشن ورود از پهلو */
+        animation: slideInRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .grade-header {
+        background: linear-gradient(135deg, #223A5E 0%, #355982 100%);
+        padding: 25px 20px;
+        text-align: center;
+        color: #fff;
+    }
+
+    .grade-header h4 {
+        margin: 0;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .grade-body {
+        padding: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* استایل فیلدها */
+    .form-control, .form-select {
+        border-radius: 12px !important;
+        border: 1px solid var(--border) !important;
+        padding: 0.8rem 1rem !important;
+        background-color: #F8FAFC !important;
+        color: var(--text-dark) !important;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px rgba(53, 89, 130, 0.1) !important;
+        background-color: #fff !important;
+        transform: translateY(-2px);
+    }
+
+    .form-control[readonly] {
+        background-color: #E2EAF4 !important;
+        cursor: not-allowed;
+    }
+
+    /* افکت خاص برای فیلد نمره */
+    input[name="Score"] {
+        font-size: 1.5rem !important;
+        font-weight: 900 !important;
+        text-align: center;
+        color: var(--primary) !important;
+        border: 2px solid var(--secondary) !important;
+        animation: pulseBorder 2s infinite;
+    }
+    input[name="Score"]:focus {
+        animation: none; /* توقف انیمیشن موقع کلیک */
+        border-color: var(--primary) !important;
+    }
+
+    .btn-submit {
+        background: var(--primary);
+        border: none;
+        padding: 12px;
+        font-size: 1.05rem;
+        font-weight: bold;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-submit:hover {
+        background: var(--primary-light);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(53, 89, 130, 0.3);
+    }
+
+    /* افکت درخشش روی دکمه */
+    .btn-submit::after {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: transform 0.5s, opacity 0.5s;
+    }
+    .btn-submit:hover::after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+</style>
+
+<div class="grade-wrapper">
+    <div class="grade-card">
+        <div class="grade-header">
+            <h4><i class="bi bi-journal-check"></i> ثبت نمره دانشجو</h4>
+        </div>
+
+        <div class="grade-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- دانشجو -->
+                <div class="mb-3">
+                    <label class="form-label">دانشجو</label>
+                    <select name="StudentID" id="id_student_select" class="form-select" required>
+                        <option value="" selected disabled> </option>
+                        {% for student in form.StudentID.field.queryset %}
+                            <option value="{{ student.pk }}">
+                                {{ student.PersonID.PersianFirstName }} {{ student.PersonID.PersianLastName }} ({{ student.StudentCode }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% for error in form.StudentID.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <!-- دوره (Readonly) -->
+                <div class="mb-3">
+                    <label class="form-label">دوره</label>
+                    {{ form.CourseName }}
+                </div>
+
+                <!-- شماره ترم (Readonly) -->
+                <div class="mb-3">
+                    <label class="form-label">شماره ترم</label>
+                    {{ form.TermNumber }}
+                </div>
+
+                <!-- نمره -->
+                <div class="mb-4">
+                    <label class="form-label">نمره</label>
+                    {{ form.Score }}
+                    {% for error in form.Score.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <input type="hidden" name="enrollment_id" id="id_enrollment_id" value="">
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-submit">
+                        <i class="bi bi-check2-circle me-1"></i> ثبت نمره
+                    </button>
+                    <a href="{% url 'home' %}" class="btn btn-light rounded-pill py-2" style="font-weight: 500; color: var(--text-muted);">
+                        بازگشت
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- اسکریپت‌ها -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // آپدیت خودکار دوره و ترم
+        $('#id_student_select').change(function() {
+            var studentId = $(this).val();
+            if (studentId) {
+                $.ajax({
+                    url: '/api/student-course-info/' + studentId + '/',
+                    type: 'GET',
+                    success: function(data) {
+                        if (data.course_name) {
+                            $('#id_course_display').val(data.course_name);
+                            $('#id_term_display').val(data.term_number);
+                            $('#id_enrollment_id').val(data.enrollment_id);
+                        } else {
+                            $('#id_course_display').val('دانشجو در دوره‌ای ثبت‌نام نکرده است.');
+                            $('#id_term_display').val('');
+                            $('#id_enrollment_id').val('');
+                        }
+                    },
+                    error: function() {
+                        $('#id_course_display').val('خطا در دریافت اطلاعات');
+                    }
+                });
+            } else {
+                $('#id_course_display').val('');
+                $('#id_term_display').val('');
+                $('#id_enrollment_id').val('');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends '_base.html' %}
+{% block page_title %}لیست مدارک{% endblock %}
+
+{% block content %}
+<style>
+    /* استایل کارت‌های مدرک */
+    .cert-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #D0E1F2;
+        padding: 25px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 5px 20px rgba(34, 58, 94, 0.04);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    /* نوار رنگی سمت راست کارت */
+    .cert-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 6px;
+        background: linear-gradient(180deg, #6E9ECC 0%, #355982 100%);
+        transition: width 0.3s ease;
+    }
+
+    .cert-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(53, 89, 130, 0.12);
+        border-color: #9FC0E3;
+    }
+
+    .cert-card:hover::before {
+        width: 10px;
+    }
+
+    /* آیکون مدرک */
+    .cert-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        background: #F3F8FD;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: #355982;
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .cert-card:hover .cert-icon-wrapper {
+        background: #355982;
+        color: #fff;
+        transform: rotate(-10deg) scale(1.1);
+    }
+
+    /* عنوان مدرک */
+    .cert-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #223A5E;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    /* فوتر کارت (تاریخ و صادرکننده) */
+    .cert-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px dashed #D0E1F2;
+    }
+
+    .cert-footer-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .cert-vendor {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #4D79A8;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .cert-date {
+        background: #F3F8FD;
+        color: #355982;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* دکمه‌های عملیات */
+    .cert-actions {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 8px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background: #F8FBFF;
+        color: #355982;
+        border: 1px solid #D0E1F2;
+    }
+
+    .btn-edit:hover {
+        background: #E3F2FD;
+        border-color: #9FC0E3;
+        color: #223A5E;
+    }
+
+    .btn-delete {
+        background: #FFF5F5;
+        color: #D32F2F;
+        border: 1px solid #FFCDD2;
+    }
+
+    .btn-delete:hover {
+        background: #FFEBEE;
+        border-color: #EF9A9A;
+        color: #B71C1C;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <!-- هدر صفحه -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #223A5E;">
+                <i class="bi bi-award-fill me-2" style="color: #6E9ECC;"></i> لیست مدارک صادر شده
+            </h3>
+            <p class="text-muted mb-0">مدیریت و مشاهده تمامی مدارک سیستم</p>
+        </div>
+        <a href="{% url 'certificate_create' %}" class="btn btn-primary rounded-pill px-4 py-2" style="background-color: #355982; box-shadow: 0 5px 15px rgba(53, 89, 130, 0.2);">
+            <i class="bi bi-plus-lg me-1"></i> صدور مدرک جدید
+        </a>
+    </div>
+
+    <!-- گرید کارت‌ها -->
+    <div class="row g-4">
+        {% for cert in certificates %}
+        <div class="col-md-6 col-lg-4">
+            <div class="cert-card">
+                <div>
+                    <div class="cert-icon-wrapper">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <h5 class="cert-title">{{ cert.CertificationTitle }}</h5>
+                </div>
+
+                <div class="cert-footer">
+                    <!-- اطلاعات تاریخ و صادرکننده -->
+                    <div class="cert-footer-info">
+                        <div class="cert-vendor">
+                            <i class="bi bi-building"></i>
+                            <span>صادرکننده: {{ cert.Vendor }}</span>
+                        </div>
+                        <div class="cert-date">
+                            <i class="bi bi-calendar3"></i>
+                            {{ cert.Startdate }}
+                        </div>
+                    </div>
+
+                    <!-- دکمه‌های ویرایش و حذف -->
+                    <div class="cert-actions">
+                        <a href="{% url 'certificate_update' cert.pk %}" class="btn-action btn-edit">
+                            <i class="bi bi-pencil-square"></i> ویرایش
+                        </a>
+                        <a href="{% url 'certificate_delete' cert.pk %}" class="btn-action btn-delete">
+                            <i class="bi bi-trash3"></i> حذف
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- حالت خالی بودن لیست -->
+        <div class="col-12 text-center py-5">
+            <div class="p-5 rounded-4" style="background: #fff; border: 2px dashed #D0E1F2;">
+                <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+                <h5 class="fw-bold" style="color: #223A5E;">هنوز هیچ مدرکی صادر نشده است</h5>
+                <p class="text-muted">برای شروع، روی دکمه «صدور مدرک جدید» کلیک کنید.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

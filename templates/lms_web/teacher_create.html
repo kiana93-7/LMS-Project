@@ -1,0 +1,330 @@
+{% extends '_base.html' %}
+
+{% block page_title %}ثبت‌نام استاد{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --holst-900: #223A5E;
+        --holst-800: #355982;
+        --holst-700: #4D79A8;
+        --holst-600: #6E9ECC;
+        --holst-500: #9FC0E3;
+        --holst-400: #D0E1F2;
+        --holst-100: #F3F8FD;
+    }
+
+    /* انیمیشن ورود کارت (از سمت چپ) */
+    @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* انیمیشن موج نور */
+    @keyframes waveMotion {
+        0% { transform: translateY(0) scale(1); opacity: 0.1; }
+        50% { transform: translateY(-20px) scale(1.05); opacity: 0.2; }
+        100% { transform: translateY(0) scale(1); opacity: 0.1; }
+    }
+
+    .wave-wrapper {
+        position: relative;
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #FFFFFF 0%, var(--holst-100) 100%);
+        padding: 40px 15px;
+        overflow: hidden;
+    }
+
+    /* افکت موج پس‌زمینه */
+    .wave-bg {
+        position: absolute;
+        width: 100%; height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    }
+    .wave {
+        position: absolute;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, var(--holst-400) 0%, transparent 60%);
+        border-radius: 40%;
+        animation: waveMotion 12s infinite ease-in-out;
+    }
+    .wave:nth-child(1) { top: -50%; left: -50%; animation-delay: 0s; }
+    .wave:nth-child(2) { bottom: -50%; right: -50%; animation-delay: -4s; }
+
+    /* کارت اصلی */
+    .wave-card {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(34, 58, 94, 0.1);
+        border: 1px solid var(--holst-400);
+        width: 100%;
+        max-width: 950px;
+        display: flex;
+        flex-direction: row-reverse; /* برعکس کردن چیدمان: گرافیک سمت چپ */
+        overflow: hidden;
+        animation: slideInLeft 0.8s ease-out forwards;
+    }
+
+    /* پنل گرافیکی سمت چپ */
+    .wave-sidebar {
+        width: 35%;
+        background: var(--holst-800);
+        padding: 50px 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* افکت شیشه‌ای و نور داخل پنل */
+    .wave-sidebar::after {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: waveMotion 8s infinite linear;
+    }
+
+    .wave-sidebar h3 {
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #FFFFFF;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .wave-sidebar p {
+        color: var(--holst-400);
+        font-size: 0.95rem;
+        line-height: 1.8;
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* آیتم‌های مرحله (به شکل کارت‌های کوچک) */
+    .step-container { position: relative; z-index: 1; }
+    .step-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        transition: all 0.4s ease;
+    }
+    .step-card:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateX(-10px); /* حرکت به سمت چپ */
+        border-color: var(--holst-500);
+    }
+    .step-card i {
+        font-size: 1.3rem;
+        color: var(--holst-500);
+        margin-left: 12px;
+        transition: color 0.3s;
+    }
+    .step-card:hover i {
+        color: #FFFFFF;
+    }
+    .step-card span {
+        color: var(--holst-400);
+        font-size: 0.9rem;
+    }
+    .step-card:hover span {
+        color: #FFFFFF;
+    }
+
+    /* فرم سمت راست */
+    .wave-form-area {
+        width: 65%;
+        padding: 50px 40px;
+        background: #FFFFFF;
+    }
+
+    .wave-form-area h4 {
+        font-weight: 900;
+        color: var(--holst-900);
+        margin-bottom: 30px;
+        font-size: 1.6rem;
+        text-align: left; /* چپ‌چین کردن عنوان */
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--holst-800);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* فیلدها با افکت بزرگ شدن */
+    .form-control, .form-select {
+        border-radius: 12px !important;
+        border: 1.5px solid var(--holst-400) !important;
+        padding: 0.85rem 1rem !important;
+        background-color: #F8FAFC !important;
+        color: var(--holst-900) !important;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-control:hover, .form-select:hover {
+        border-color: var(--holst-600) !important;
+        transform: scale(1.02); /* بزرگ شدن ملایم */
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--holst-800) !important;
+        background-color: #FFFFFF !important;
+        box-shadow: 0 0 0 4px rgba(53, 89, 130, 0.15) !important;
+        transform: scale(1.02);
+    }
+
+    .form-select {
+        background-position: left 1rem center !important;
+        padding-left: 2.5rem !important;
+    }
+
+    /* دکمه ثبت */
+    .btn-wave {
+        background: var(--holst-800);
+        color: #FFFFFF;
+        border: none;
+        padding: 15px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    /* افکت نور کشویی روی دکمه */
+    .btn-wave::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    .btn-wave:hover::after {
+        left: 100%;
+    }
+    .btn-wave:hover {
+        background: var(--holst-700);
+        box-shadow: 0 10px 20px rgba(53, 89, 130, 0.3);
+        color: #FFFFFF;
+    }
+
+    .btn-wave-back {
+        background: transparent;
+        color: var(--holst-700);
+        border: none;
+        padding: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .btn-wave-back:hover {
+        color: var(--holst-900);
+        text-decoration: underline;
+    }
+</style>
+
+<div class="wave-wrapper">
+    <!-- افکت موج پس‌زمینه -->
+    <div class="wave-bg">
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <div class="wave-card">
+
+        <!-- پنل گرافیکی سمت چپ -->
+        <div class="wave-sidebar">
+            <h3>ثبت‌نام اساتید</h3>
+            <p>به کادر آموزشی خوش آمدید. برای مدیریت دوره‌ها، اطلاعات خود را وارد کنید.</p>
+
+            <div class="step-container">
+                <div class="step-card">
+                    <i class="bi bi-person-badge"></i>
+                    <span>ثبت اطلاعات هویتی</span>
+                </div>
+                <div class="step-card">
+                    <i class="bi bi-journal-check"></i>
+                    <span>مدیریت دوره‌ها</span>
+                </div>
+                <div class="step-card">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>دسترسی به پنل اختصاصی</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- فرم سمت راست -->
+        <div class="wave-form-area">
+            <h4>فرم ثبت‌نام استاد</h4>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.PersianFirstName.label }}</label>
+                        {{ person_form.PersianFirstName }}
+                        {% for error in person_form.PersianFirstName.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.PersianLastName.label }}</label>
+                        {{ person_form.PersianLastName }}
+                        {% for error in person_form.PersianLastName.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.NationalCode.label }}</label>
+                        {{ person_form.NationalCode }}
+                        {% for error in person_form.NationalCode.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.PhoneNumber.label }}</label>
+                        {{ person_form.PhoneNumber }}
+                        {% for error in person_form.PhoneNumber.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.Birthdate.label }}</label>
+                        {{ person_form.Birthdate }}
+                        {% for error in person_form.Birthdate.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ person_form.Sex.label }}</label>
+                        {{ person_form.Sex }}
+                        {% for error in person_form.Sex.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn-wave">
+                        <i class="bi bi-check2-circle me-2"></i> ثبت استاد
+                    </button>
+                    <a href="{% url 'teacher_list' %}" class="btn-wave-back">
+                        بازگشت به لیست
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

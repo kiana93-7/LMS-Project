@@ -1,0 +1,49 @@
+{% extends '_base.html' %}
+{% block page_title %}حذف استاد{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden" style="background-color: #FAFAFA;">
+
+                <!-- هدر با رنگ پاستیلی بنفش -->
+                <div class="p-4 text-center" style="background-color: #EDE7F6;">
+                    <i class="bi bi-person-x fs-1 mb-2 d-block" style="color: #5E35B1;"></i>
+                    <h4 class="fw-bold mb-0" style="color: #311B92;">حذف استاد</h4>
+                </div>
+
+                <div class="card-body p-5 text-center">
+                    <p class="mb-3" style="font-size: 1.1rem; color: #555; line-height: 1.8;">
+                        آیا از حذف استاد
+                        <br>
+                        <strong style="color: #4527A0; font-size: 1.2rem;">«{{ teacher.PersonID.PersianFirstName }} {{ teacher.PersonID.PersianLastName }}»</strong>
+                        <br>
+                        مطمئن هستید؟
+                    </p>
+
+                    <div class="alert border-0 rounded-3 text-start mb-4" style="background-color: #F3E5F5; color: #6A1B9A;">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        با این کار تمام اطلاعات این استاد و دوره‌های مرتبط با او از سیستم حذف خواهد شد.
+                    </div>
+
+                    <form method="post" class="d-grid gap-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-lg rounded-pill fw-bold" style="background-color: #D1C4E9; color: #311B92; border: none; transition: all 0.3s;">
+                            <i class="bi bi-trash me-2"></i> بله، حذف کن
+                        </button>
+                        <a href="{% url 'teacher_list' %}" class="btn btn-lg rounded-pill" style="background-color: #E2EAF4; color: #4D79A8; border: none; font-weight: 500; transition: all 0.3s;">
+                            انصراف و بازگشت
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    button[type="submit"]:hover { background-color: #B39DDB !important; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(209, 196, 233, 0.4); }
+    a.btn:hover { background-color: #D0E1F2 !important; transform: translateY(-2px); }
+</style>
+{% endblock %}

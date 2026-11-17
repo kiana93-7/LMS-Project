@@ -1,0 +1,263 @@
+{% extends '_base.html' %}
+{% block page_title %}لیست دانشجوها{% endblock %}
+
+{% block content %}
+
+<style>
+    /* محدوده منوی عملیات */
+    .student-actions {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    /* منوی کشویی */
+    .student-actions .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+        margin: 0;
+        padding: 8px;
+        min-width: 125px;
+        z-index: 9999;
+        border-radius: 12px;
+        border: 1px solid #D0E1F2;
+        background-color: #FFFFFF;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    /* نمایش منو هنگام Hover */
+    .student-actions:hover .dropdown-menu {
+        display: block;
+    }
+
+    /* گزینه‌های منو */
+    .student-actions .dropdown-item {
+        padding: 8px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .student-actions .dropdown-item:hover {
+        background-color: #F3F8FD;
+    }
+
+    /* دکمه سه‌نقطه */
+    .student-actions button {
+        border-radius: 8px;
+    }
+
+    /* بالاتر قرار گرفتن ردیف فعال */
+    .table tbody tr:has(.student-actions:hover) {
+        position: relative;
+        z-index: 20;
+    }
+
+    /* جلوگیری از بریده شدن منو */
+    .card,
+    .card-body {
+        overflow: visible;
+    }
+
+    /* ========================================= */
+    /* انیمیشن ورود ردیف‌های جدول (افزوده شده) */
+    /* ========================================= */
+    @keyframes fadeInUpRow {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .table tbody tr {
+        opacity: 0;
+        animation: fadeInUpRow 0.5s ease-out forwards;
+    }
+
+    /* تاخیر پلکانی برای ردیف‌ها */
+    .table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    .table tbody tr:nth-child(6) { animation-delay: 0.6s; }
+    .table tbody tr:nth-child(7) { animation-delay: 0.7s; }
+    .table tbody tr:nth-child(8) { animation-delay: 0.8s; }
+    .table tbody tr:nth-child(9) { animation-delay: 0.9s; }
+    .table tbody tr:nth-child(10) { animation-delay: 1.0s; }
+</style>
+
+<div class="container mt-5">
+
+    <!-- عنوان صفحه و دکمه‌ها -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h3 class="text-primary mb-0">
+            لیست دانشجوها
+        </h3>
+
+        <!-- گروه دکمه‌ها -->
+        <div class="d-flex gap-2">
+            <!-- اینجا دقیقاً به فرم سرمه‌ای (student_register) وصل شد -->
+            <a href="{% url 'student_register' %}" class="btn btn-primary rounded-pill">
+                + ثبت‌نام دانشجوی جدید
+            </a>
+
+            <!-- دکمه پاک‌سازی کل -->
+            <form method="post" action="{% url 'delete_all_students' %}" onsubmit="return confirm('آیا مطمئن هستید؟ تمام دانشجوها و ثبت‌نام‌ها پاک خواهند شد و این عمل قابل بازگشت نیست!');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger rounded-pill">
+                    <i class="bi bi-trash3"></i> پاک‌سازی کل
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- کارت جدول -->
+    <div class="card shadow-sm border-0 rounded-4">
+
+        <div class="card-body p-0">
+
+            <table class="table table-hover mb-0 text-center align-middle">
+
+                <!-- سرستون‌ها -->
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th class="py-3 px-3">
+                            کد دانشجویی
+                        </th>
+
+                        <th class="py-3 px-3">
+                            نام
+                        </th>
+
+                        <th class="py-3 px-3">
+                            نام خانوادگی
+                        </th>
+
+                        <th class="py-3 px-3">
+                            کد ملی
+                        </th>
+
+                        <th class="py-3 px-3" style="width: 80px;">
+                            عملیات
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <!-- اطلاعات دانشجویان -->
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <!-- کد دانشجویی -->
+                        <td class="py-3 px-3">
+                            {{ student.StudentCode }}
+                        </td>
+
+                        <!-- نام -->
+                        <td class="py-3 px-3">
+                            {{ student.PersonID.PersianFirstName }}
+                        </td>
+
+                        <!-- نام خانوادگی -->
+                        <td class="py-3 px-3">
+                            {{ student.PersonID.PersianLastName }}
+                        </td>
+
+                        <!-- کد ملی -->
+                        <td class="py-3 px-3">
+                            {{ student.PersonID.NationalCode }}
+                        </td>
+
+                        <!-- منوی عملیات -->
+                        <td class="py-3 px-3">
+
+                            <div class="student-actions">
+
+                                <!-- دکمه سه‌نقطه -->
+                                <button type="button"
+                                        class="btn btn-sm btn-light border-0">
+
+                                    <i class="bi bi-three-dots-vertical"></i>
+
+                                </button>
+
+                                <!-- گزینه‌های منو -->
+                                <ul class="dropdown-menu">
+
+                                    <!-- ویرایش -->
+                                    <li>
+
+                                        <a class="dropdown-item text-warning"
+                                           href="{% url 'student_update' student.pk %}">
+
+                                            <i class="bi bi-pencil me-1"></i>
+                                            ویرایش
+
+                                        </a>
+
+                                    </li>
+
+                                    <!-- حذف -->
+                                    <li>
+
+                                        <a class="dropdown-item text-danger"
+                                           href="{% url 'student_delete' student.pk %}">
+
+                                            <i class="bi bi-trash me-1"></i>
+                                            حذف
+
+                                        </a>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <!-- در صورت نبود دانشجو -->
+                    <tr>
+
+                        <td colspan="5" class="text-center py-5">
+
+                            هیچ دانشجویی در سیستم ثبت نشده است.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

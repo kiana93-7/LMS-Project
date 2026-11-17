@@ -1,0 +1,45 @@
+{% extends '_base.html' %}
+{% block page_title %}حذف دانشجو{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden" style="background-color: #FAFAFA;">
+
+                <!-- هدر با رنگ پاستیلی آبی نفتی -->
+                <div class="p-4 text-center" style="background-color: #E0F2F1;">
+                    <i class="bi bi-person-dash fs-1 mb-2 d-block" style="color: #00897B;"></i>
+                    <h4 class="fw-bold mb-0" style="color: #004D40;">حذف دانشجو</h4>
+                </div>
+
+                <div class="card-body p-5 text-center">
+                    <p class="mb-4" style="font-size: 1.1rem; color: #555; line-height: 1.8;">
+                        آیا از حذف دانشجو
+                        <br>
+                        <strong style="color: #00695C; font-size: 1.2rem;">«{{ student.PersonID.PersianFirstName }} {{ student.PersonID.PersianLastName }}»</strong>
+                        <br>
+                        مطمئن هستید؟
+                    </p>
+                    <p class="mb-4" style="color: #999; font-size: 0.9rem;">این عملیات غیرقابل بازگشت است.</p>
+
+                    <form method="post" class="d-grid gap-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-lg rounded-pill fw-bold" style="background-color: #B2DFDB; color: #004D40; border: none; transition: all 0.3s;">
+                            <i class="bi bi-trash me-2"></i> بله، حذف کن
+                        </button>
+                        <a href="{% url 'student_list' %}" class="btn btn-lg rounded-pill" style="background-color: #E2EAF4; color: #4D79A8; border: none; font-weight: 500; transition: all 0.3s;">
+                            انصراف
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    button[type="submit"]:hover { background-color: #80CBC4 !important; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(178, 223, 219, 0.4); }
+    a.btn:hover { background-color: #D0E1F2 !important; transform: translateY(-2px); }
+</style>
+{% endblock %}

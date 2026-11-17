@@ -1,0 +1,184 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block page_title %}
+ورود به سایت
+{% endblock %}
+
+{% block content %}
+<style>
+    /* استایل اختصاصی برای صفحه ورود (تم آبی پاستیلی و شیشه‌ای) */
+    .login-wrapper {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .login-card {
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(53, 89, 130, 0.15);
+        background: #fff;
+        width: 100%;
+        max-width: 850px; /* عریض‌تر برای حالت دو ستونه */
+        display: flex;
+        flex-direction: row;
+    }
+
+    /* ستون سمت راست (گرافیک) */
+    .login-side {
+        background: linear-gradient(135deg, #A4C4E6 0%, #7A9CC6 100%);
+        color: #fff;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        flex: 1; /* نیمی از فضا */
+    }
+    .login-side::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="bubbles" width="80" height="80" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="10" fill="rgba(255,255,255,0.15)"/><circle cx="60" cy="60" r="18" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23bubbles)"/></svg>');
+        opacity: 0.8;
+    }
+    .login-side h3 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+    .login-side p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        opacity: 0.9;
+    }
+
+    /* ستون سمت چپ (فرم) */
+    .login-form-area {
+        padding: 50px 45px;
+        flex: 1.2; /* کمی عریض‌تر از ستون گرافیک */
+        background: #fff;
+    }
+    .login-form-area h2 {
+        color: #355982;
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .login-form-area .form-label {
+        font-weight: 600;
+        color: #4D79A8;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .login-form-area input {
+        border-radius: 12px !important;
+        border: 1px solid #D0E1F2 !important;
+        padding: 14px 18px !important;
+        background-color: #F8FBFF !important;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1rem;
+    }
+    .login-form-area input:focus {
+        border-color: #7A9CC6 !important;
+        box-shadow: 0 0 0 0.25rem rgba(122, 156, 198, 0.25) !important;
+        background-color: #fff !important;
+        outline: none;
+    }
+
+    /* استایل مخصوص دکمه ورود */
+    .btn-login {
+        background: linear-gradient(135deg, #7A9CC6 0%, #5C85AD 100%);
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: 14px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        box-shadow: 0 4px 15px rgba(122, 156, 198, 0.3);
+    }
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(92, 133, 173, 0.4);
+        color: #fff;
+    }
+
+    /* ریسپانسیو برای موبایل */
+    @media (max-width: 768px) {
+        .login-card {
+            flex-direction: column;
+        }
+        .login-side {
+            padding: 30px 20px;
+        }
+        .login-form-area {
+            padding: 30px 25px;
+        }
+    }
+</style>
+
+<div class="container login-wrapper">
+    <div class="login-card border-0">
+
+        <!-- سمت راست: گرافیک -->
+        <div class="login-side d-none d-md-flex">
+            <h3>خوش آمدید!</h3>
+            <p>برای دسترسی به دوره‌ها، ثبت‌نام در کلاس‌ها و مشاهده نمرات، وارد حساب کاربری خود شوید.</p>
+            <div class="mt-4 text-center">
+                <i class="bi bi-shield-lock-fill" style="font-size: 5rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+
+        <!-- سمت چپ: فرم ورود -->
+        <div class="login-form-area">
+            <h2><i class="bi bi-box-arrow-in-right me-2"></i> ورود به سایت</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small">{{ error }}</div>
+                {% endfor %}
+
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn-login">
+                        ورود
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4">
+                <span class="text-muted" style="font-size: 0.9rem;">حساب ندارید؟</span>
+                <a href="{% url 'signup' %}" class="text-decoration-none fw-bold" style="color: #5C85AD; font-size: 0.9rem;">ثبت‌نام کنید</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

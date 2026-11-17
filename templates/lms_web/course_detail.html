@@ -1,0 +1,272 @@
+{% extends '_base.html' %}
+
+{% block page_title %}جزئیات دوره - {{ course.CourseName }}{% endblock %}
+
+{% block content %}
+<style>
+    /* پالت رنگی Holst */
+    :root {
+        --holst-900: #223A5E;
+        --holst-800: #355982;
+        --holst-700: #4D79A8;
+        --holst-600: #6E9ECC;
+        --holst-500: #9FC0E3;
+        --holst-400: #D0E1F2;
+        --holst-100: #F3F8FD;
+    }
+
+    /* انیمیشن ورود */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .detail-wrapper {
+        min-height: 80vh;
+        background: linear-gradient(180deg, var(--holst-100) 0%, #FFFFFF 100%);
+        padding: 40px 15px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    /* کارت اصلی (کوچیک‌تر شد) */
+    .detail-card {
+        background: #FFFFFF;
+        width: 100%;
+        max-width: 700px; /* از 900px به 700px کاهش یافت */
+        border-radius: 20px;
+        border: 1px solid var(--holst-400);
+        box-shadow: 0 15px 40px rgba(34, 58, 94, 0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* هدر کارت */
+    .detail-header {
+        background: linear-gradient(135deg, var(--holst-900) 0%, var(--holst-700) 100%);
+        padding: 30px 20px; /* پدینگ کمتر شد */
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .detail-header::after {
+        content: '';
+        position: absolute;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        top: -50px; left: -50px;
+    }
+
+    .detail-header h2 {
+        color: #FFFFFF;
+        font-weight: 900;
+        margin: 0;
+        font-size: 1.6rem; /* فونت کوچیک‌تر شد */
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-header p {
+        color: var(--holst-400);
+        margin: 8px 0 0 0;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* بدنه کارت */
+    .detail-body {
+        padding: 30px; /* پدینگ داخلی کمتر شد */
+    }
+
+    .section-title {
+        font-weight: 800;
+        color: var(--holst-900);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--holst-100);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i {
+        color: var(--holst-600);
+    }
+
+    .course-description {
+        color: var(--holst-800);
+        line-height: 1.9;
+        text-align: justify;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    /* بخش اطلاعات تکمیلی (شبکه‌ای) */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .info-box {
+        background: var(--holst-100);
+        border: 1px solid var(--holst-400);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .info-box:hover {
+        transform: translateY(-5px);
+        border-color: var(--holst-600);
+        box-shadow: 0 8px 20px rgba(110, 158, 204, 0.15);
+    }
+
+    .info-box i {
+        font-size: 1.5rem;
+        color: var(--holst-700);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        color: var(--holst-600);
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: var(--holst-900);
+        font-weight: 800;
+    }
+
+    /* دکمه‌ها */
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn-enroll {
+        background: linear-gradient(135deg, var(--holst-800) 0%, var(--holst-600) 100%);
+        color: #FFFFFF;
+        border: none;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 800;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-enroll:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(53, 89, 130, 0.3);
+        color: #fff;
+    }
+
+    .btn-back {
+        background: transparent;
+        color: var(--holst-700);
+        border: 2px solid var(--holst-400);
+        padding: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: block;
+    }
+
+    .btn-back:hover {
+        background: var(--holst-100);
+        border-color: var(--holst-600);
+        color: var(--holst-900);
+    }
+</style>
+
+<div class="detail-wrapper">
+    <div class="detail-card">
+
+        <!-- هدر دوره -->
+        <div class="detail-header">
+            <h2>{{ course.CourseName }}</h2>
+            <p>{{ course.EnglishCourseName }}</p>
+        </div>
+
+        <!-- بدنه دوره -->
+        <div class="detail-body">
+
+            <!-- توضیحات -->
+            <div class="section-title">
+                <i class="bi bi-file-text"></i> توضیحات دوره
+            </div>
+            <p class="course-description">
+                {{ course.Description }}
+            </p>
+
+            <!-- اطلاعات تکمیلی -->
+            <div class="section-title">
+                <i class="bi bi-info-circle"></i> اطلاعات تکمیلی
+            </div>
+
+            <div class="info-grid">
+                <!-- نوع دوره -->
+                <div class="info-box">
+                    <i class="bi bi-laptop"></i>
+                    <div class="info-label">نوع دوره</div>
+                    <div class="info-value">{{ course.CourseType }}</div>
+                </div>
+
+                <!-- مدت دوره -->
+                <div class="info-box">
+                    <i class="bi bi-clock-history"></i>
+                    <div class="info-label">مدت دوره</div>
+                    <div class="info-value">{{ course.Duration }} ساعت</div>
+                </div>
+
+                <!-- استاد دوره -->
+                <div class="info-box">
+                    <i class="bi bi-person-badge"></i>
+                    <div class="info-label">استاد دوره</div>
+                    <div class="info-value">
+                        {% if teacher %}
+                            {{ teacher.PersonID.PersianFirstName }} {{ teacher.PersonID.PersianLastName }}
+                        {% else %}
+                            تعیین نشده
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- دکمه‌های عملیات -->
+            <div class="action-buttons">
+                {% if not user.is_superuser %}
+                    <a href="{% url 'enrollment' %}?course_id={{ course.pk }}" class="btn-enroll">
+                        <i class="bi bi-journal-check fs-5"></i> ثبت‌نام در این دوره
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'course_list' %}" class="btn-back">
+                    <i class="bi bi-arrow-right me-1"></i> بازگشت به لیست دوره‌ها
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

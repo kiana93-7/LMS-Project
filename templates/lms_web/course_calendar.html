@@ -1,0 +1,188 @@
+{% extends '_base.html' %}
+
+{% block page_title %}تقویم آموزشی{% endblock %}
+
+{% block content %}
+<style>
+    /* انیمیشن ورود کارت‌ها */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .calendar-header {
+        text-align: center;
+        margin-bottom: 40px;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    .calendar-header h2 {
+        font-weight: 800;
+        color: var(--primary);
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    .calendar-header p {
+        color: var(--text-muted);
+        font-size: 1rem;
+    }
+
+    /* بخش ترم‌ها */
+    .term-section {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(53, 89, 130, 0.05);
+        border: 1px solid var(--border);
+        margin-bottom: 30px;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    /* هدر ترم */
+    .term-header {
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: #fff;
+        padding: 15px 25px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .term-header .badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 1rem;
+        padding: 5px 15px;
+        border-radius: 50px;
+        backdrop-filter: blur(5px);
+    }
+
+    /* گرید دوره‌ها */
+    .term-body {
+        padding: 25px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    /* کارت دوره */
+    .course-card-calendar {
+        background: #F8FAFC;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+    }
+
+    /* افکت هاور کارت */
+    .course-card-calendar:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(53, 89, 130, 0.12);
+        border-color: var(--secondary);
+        background: #fff;
+    }
+
+    /* خط رنگی بالای کارت */
+    .course-card-calendar::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: var(--secondary);
+        border-radius: 16px 16px 0 0;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .course-card-calendar:hover::before {
+        opacity: 1;
+    }
+
+    .course-card-calendar h5 {
+        font-weight: 800;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .course-card-calendar p {
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    /* دکمه مشاهده */
+    .btn-view-course {
+        display: inline-block;
+        text-align: center;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: var(--primary);
+        background: transparent;
+        border: 1.5px solid var(--primary);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-view-course:hover {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(53, 89, 130, 0.2);
+    }
+</style>
+
+<div class="container mt-5">
+
+    <!-- هدر صفحه -->
+    <div class="calendar-header">
+        <h2><i class="bi bi-calendar3 me-2"></i> تقویم آموزشی</h2>
+        <p>دوره‌های در حال برگزاری به تفکیک ترم</p>
+    </div>
+
+    <!-- حلقه روی ترم‌ها -->
+    {% for term, courses in terms.items %}
+    <div class="term-section">
+
+        <div class="term-header">
+            <span><i class="bi bi-calendar-check me-2"></i> ترم {{ term }}</span>
+            <span class="badge">{{ courses|length }} دوره</span>
+        </div>
+
+        <div class="term-body">
+            {% for course in courses %}
+            <div class="course-card-calendar">
+                <div>
+                    <h5>{{ course.CourseName }}</h5>
+                    <p>{{ course.Description|truncatechars:80 }}</p>
+                </div>
+                <div class="mt-auto">
+                    <a href="{% url 'course_detail' course.pk %}" class="btn-view-course w-100">
+                        مشاهده دوره
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted p-4 w-100">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                هیچ دوره‌ای در این ترم ثبت نشده است.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center shadow-sm" style="border-radius: 15px;">
+        <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+        هیچ دوره‌ای در تقویم آموزشی ثبت نشده است.
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}
