@@ -72,7 +72,6 @@ def home_view(request):
 
 @login_required(login_url='/login/')
 def course_list_view(request):
-    # استاد رو از خود جدول Course می‌خونیم (select_related برای بهینه‌سازی)
     courses = Course.objects.all().select_related('TeacherID__PersonID')
 
     course_type = request.GET.get('course_type')
@@ -87,7 +86,6 @@ def course_list_view(request):
     page_obj = paginator.get_page(page_number)
 
     for course in page_obj:
-        # استاد مستقیماً از خود دوره خونده می‌شه
         if course.TeacherID:
             t = course.TeacherID.PersonID
             course.teacher_name = f"{t.PersianFirstName} {t.PersianLastName}"
@@ -109,7 +107,7 @@ def course_create_view(request):
         if form.is_valid():
             course = form.save(commit=False)
             course.Syllabus = "سرفصل‌ها متعاقباً اعلام می‌شود."
-            course.save()  # استاد (TeacherID) هم خودکار توی همین مرحله ذخیره می‌شه
+            course.save()
 
             messages.success(request, 'دوره با موفقیت ایجاد شد.')
             return redirect('course_list')
@@ -125,7 +123,6 @@ def course_update_view(request, pk):
     if request.method == 'POST':
         form = CourseForm(request.POST, instance=course)
         if form.is_valid():
-            # ⚠️ اینجا استاد رو از فرم بگیر و توی خود دوره ذخیره کن
             course = form.save(commit=False)
             course.TeacherID = form.cleaned_data['TeacherID']
             course.save()
@@ -159,11 +156,9 @@ def course_detail_view(request, pk):
 
 @login_required(login_url='/login/')
 def teacher_list_view(request):
-    # گرفتن همه اساتید
     teachers = Teacher.objects.select_related('PersonID').all()
 
     for teacher in teachers:
-        # پیدا کردن دوره‌هایی که مستقیماً به این استاد تخصیص داده شدن
         teacher.courses_list = Course.objects.filter(TeacherID=teacher)
 
     return render(request, 'lms_web/teacher_list.html', {'teachers': teachers})
@@ -245,7 +240,6 @@ def student_register_view(request):
         form = AdminStudentRegistrationForm(request.POST)
         if form.is_valid():
             try:
-                # ۱. ذخیره اطلاعات شخص
                 person = Person(
                     PersianFirstName=form.cleaned_data['PersianFirstName'],
                     PersianLastName=form.cleaned_data['PersianLastName'],
@@ -258,7 +252,6 @@ def student_register_view(request):
                 )
                 person.save()
 
-                # ۲. ذخیره اطلاعات دانشجو
                 student = Student(
                     PersonID=person,
                     StudentCode=form.cleaned_data['StudentCode'],
@@ -266,13 +259,11 @@ def student_register_view(request):
                 )
                 student.save()
 
-                # ۳. پیدا کردن استاد دوره به صورت خودکار
                 course = form.cleaned_data['CourseID']
                 teacher = course.TeacherID
                 if not teacher:
                     teacher = Teacher.objects.first()
 
-                # ۴. ثبت‌نام در دوره
                 StudentCourseTeacher.objects.create(
                     StudentID=student,
                     CourseID=course,
@@ -281,7 +272,6 @@ def student_register_view(request):
                     Score=0,
                 )
 
-                # ۵. ارسال ایمیل
                 try:
                     subject = '🎓 خوش آمدید به سیستم مدیریت آموزش'
                     message = f"سلام {person.PersianFirstName} عزیز،\n\n"
@@ -294,7 +284,6 @@ def student_register_view(request):
                     print(f"❌ خطا در ارسال ایمیل: {email_error}")
 
                 messages.success(request, 'دانشجو با موفقیت ثبت‌نام شد!')
-                # ✅ تغییر مهم: ریدایرکت به لیست ثبت‌نام‌ها
                 return redirect('enrollment_list')
 
             except Exception as e:
@@ -399,9 +388,8 @@ def enrollment_view(request):
             )
             student.save()
 
-            # ✅ تغییر اصلی اینجاست
             course = form.cleaned_data['CourseID']
-            teacher = course.TeacherID  # استادِ مربوط به همین دوره رو برمی‌داریم
+            teacher = course.TeacherID
 
             StudentCourseTeacher.objects.create(
                 StudentID=student,
@@ -489,7 +477,7 @@ def certificate_create_view(request):
         if form.is_valid():
             try:
                 cert = form.save(commit=False)
-                cert.Startdate = form.cleaned_data['Startdate']  # تاریخ مستقیم میلادی ذخیره می‌شه
+                cert.Startdate = form.cleaned_data['Startdate']
                 cert.save()
 
                 messages.success(request, 'مدرک با موفقیت ثبت شد!')
@@ -614,16 +602,11 @@ def delete_all_students_view(request):
         return render(request, 'lms_web/403.html', status=403)
 
     try:
-        # ۱. پاک کردن همه ثبت‌نام‌ها
         StudentCourseTeacher.objects.all().delete()
 
-        # ۲. پاک کردن همه دانشجوها
         Student.objects.all().delete()
 
-        # ۳. پاک کردن اطلاعات شخصی (Person) مربوط به دانشجوها
-        # چون ممکنه Personهای دیگه‌ای (مثل استاد) هم وجود داشته باشن،
-        # فقط Personهایی رو پاک میکنیم که دانشجوی خاصی بهشون وصل نیست
-        # ولی برای سادگی در تست، اینجا همه Personهایی که استاد نیستن رو پاک میکنیم
+
         Person.objects.filter(student__isnull=True, teacher__isnull=True).delete()
 
         messages.success(request, 'تمام دانشجوها و ثبت‌نام‌ها با موفقیت پاک شدند!')
@@ -633,16 +616,12 @@ def delete_all_students_view(request):
     return redirect('student_list')
 
 
-# ==========================================
-# بخش مدیریت آزمون‌ها (Exams)
-# ==========================================
 
 @login_required(login_url='/login/')
 def exam_list_view(request):
     if not request.user.is_superuser:
         return render(request, 'lms_web/403.html', status=403)
 
-    # گرفتن دوره‌هایی که حداقل یک دانشجو ثبت‌نام شده دارند
     course_ids = StudentCourseTeacher.objects.values_list('CourseID', flat=True).distinct()
     courses = Course.objects.filter(ID__in=course_ids)
 
@@ -657,7 +636,6 @@ def exam_detail_view(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     exams = Exam.objects.filter(Course=course).order_by('-id')
 
-    # اگر فرم ساخت آزمون جدید ارسال شده بود
     if request.method == 'POST' and 'create_exam' in request.POST:
         title = request.POST.get('title')
         total_score = request.POST.get('total_score', 100)
@@ -692,37 +670,31 @@ def exam_grade_view(request, exam_id):
             student_id = enrollment.StudentID.pk
             score_val = request.POST.get(f'score_{student_id}')
 
-            # ۱. اول چک می‌کنیم که آیا استاد اصلاً چیزی توی فیلد نمره نوشته یا نه
             if score_val is not None and str(score_val).strip() != '':
                 try:
                     numeric_score = float(score_val)
 
-                    # ۲. سعی می‌کنیم رکورد موجود رو پیدا کنیم
                     score_obj = ExamScore.objects.filter(Exam=exam, Student=enrollment.StudentID).first()
 
                     if score_obj:
-                        # اگه رکورد بود، فقط مقدارش رو آپدیت می‌کنیم
                         score_obj.Score = numeric_score
                         score_obj.save()
                     else:
-                        # اگه نبود، رکورد جدید WITH SCORE (نه با None) می‌سازیم
                         ExamScore.objects.create(
                             Exam=exam,
                             Student=enrollment.StudentID,
-                            Score=numeric_score  # مقدار معتبر
+                            Score=numeric_score
                         )
                 except ValueError:
                     messages.error(request,
                                    f'مقدار وارد شده برای دانشجو {enrollment.StudentID.PersonID.PersianFirstName} عدد نیست.')
                     return redirect('exam_grade', exam_id=exam_id)
             else:
-                # ۳. اگر فیلد خالی بود، اصلاً رکوردی ساخته نمی‌شه و اگر بود پاک می‌شه
                 ExamScore.objects.filter(Exam=exam, Student=enrollment.StudentID).delete()
 
         messages.success(request, 'نمرات با موفقیت ذخیره شد!')
         return redirect('exam_grade', exam_id=exam_id)
 
-    # آماده‌سازی لیست برای نمایش در فرم
     students_data = []
     for enrollment in enrollments:
         existing_score = ExamScore.objects.filter(Exam=exam, Student=enrollment.StudentID).first()
@@ -738,23 +710,18 @@ def exam_grade_view(request, exam_id):
 
 @login_required(login_url='/login/')
 def student_exams_view(request):
-    # ۱. پیدا کردن دانشجو بر اساس شماره تلفن یا ایمیل کاربری که لاگین کرده
     student = None
 
-    # تلاش با شماره تلفن
     if request.user.username:
         student = Student.objects.filter(PersonID__PhoneNumber=request.user.username).select_related('PersonID').first()
 
-    # تلاش با ایمیل (اگر با شماره تلفن پیدا نشد)
     if not student and request.user.email:
         student = Student.objects.filter(PersonID__EmailAddress=request.user.email).select_related('PersonID').first()
 
-    # اگر دانشجو پیدا نشد (مثلاً ادمین وارد شده)
     if not student:
         messages.warning(request, 'اطلاعات دانشجویی برای این حساب کاربری یافت نشد. لطفاً با پشتیبانی تماس بگیرید.')
         return redirect('home')
 
-    # ۲. گرفتن دوره‌هایی که این دانشجو ثبت‌نام کرده
     enrollments = StudentCourseTeacher.objects.filter(StudentID=student).select_related('CourseID',
                                                                                         'TeacherID__PersonID')
 
@@ -762,12 +729,10 @@ def student_exams_view(request):
     for enrollment in enrollments:
         course = enrollment.CourseID
 
-        # گرفتن آزمون‌های این دوره
         exams = Exam.objects.filter(Course=course)
 
         exam_list = []
         for exam in exams:
-            # گرفتن نمره این دانشجو در این آزمون
             score_obj = ExamScore.objects.filter(Exam=exam, Student=student).first()
             exam_list.append({
                 'title': exam.Title,
@@ -787,9 +752,6 @@ def student_exams_view(request):
     })
 
 
-# ==========================================
-# بخش ویرایش و حذف مدارک
-# ==========================================
 
 @login_required(login_url='/login/')
 def certificate_update_view(request, pk):
@@ -818,7 +780,6 @@ def certificate_delete_view(request, pk):
     cert = get_object_or_404(Certification, pk=pk)
 
     if request.method == 'POST':
-        # حذف ارتباط مدرک با اساتید (اگر وجود داشته باشه)
         TeacherCertification.objects.filter(CertificationID=cert).delete()
         cert.delete()
         messages.success(request, 'مدرک با موفقیت حذف شد!')
@@ -829,7 +790,6 @@ def certificate_delete_view(request, pk):
 
 @login_required(login_url='/login/')
 def my_enrollments_view(request):
-    # پیدا کردن دانشجو بر اساس شماره تلفن یا ایمیل
     student = None
     if request.user.username:
         student = Student.objects.filter(PersonID__PhoneNumber=request.user.username).select_related('PersonID').first()
@@ -841,7 +801,6 @@ def my_enrollments_view(request):
         messages.warning(request, 'اطلاعات دانشجویی برای این حساب کاربری یافت نشد.')
         return redirect('home')
 
-    # گرفتن دوره‌هایی که این دانشجو توش ثبت‌نام کرده
     enrollments = StudentCourseTeacher.objects.filter(StudentID=student).select_related(
         'CourseID__TeacherID__PersonID',
         'TeacherID__PersonID'

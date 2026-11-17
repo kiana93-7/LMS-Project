@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# ==================== Education ====================
 class Education(models.Model):
     ID = models.AutoField(primary_key=True, db_column='ID')
     EducationName = models.CharField(max_length=40, db_column='EducationName', verbose_name="نام مدرک")
@@ -17,7 +16,6 @@ class Education(models.Model):
         return self.EducationName
 
 
-# ==================== Person ====================
 class Person(models.Model):
     ID = models.AutoField(primary_key=True, db_column='ID')
     PersianFirstName = models.CharField(max_length=60, db_column='PersianFirstName', verbose_name="نام (فارسی)")
@@ -43,7 +41,6 @@ class Person(models.Model):
         return f"{self.PersianFirstName} {self.PersianLastName}"
 
 
-# ==================== Student ====================
 class Student(models.Model):
     PersonID = models.OneToOneField(Person, on_delete=models.DO_NOTHING, primary_key=True, db_column='PersonID', verbose_name="شخص")
     StudentCode = models.IntegerField(db_column='StudentCode', verbose_name="شماره دانشجویی")
@@ -62,7 +59,6 @@ class Student(models.Model):
         return f"{self.PersonID.PersianFirstName} {self.PersonID.PersianLastName} - {self.StudentCode}"
 
 
-# ==================== Teacher ====================
 class Teacher(models.Model):
     PersonID = models.OneToOneField(Person, on_delete=models.DO_NOTHING, primary_key=True, db_column='PersonID', verbose_name="شخص")
     TeacherCode = models.IntegerField(db_column='TeacherCode', verbose_name="کد استاد")
@@ -82,7 +78,6 @@ class Teacher(models.Model):
         return f"{self.PersonID.PersianFirstName} {self.PersonID.PersianLastName}"
 
 
-# ==================== CourseCategory ====================
 class CourseCategory(models.Model):
     ID = models.AutoField(primary_key=True, db_column='ID')
     CourseCategoryName = models.CharField(max_length=100, db_column='CourseCategoryName', verbose_name="نام دسته‌بندی")
@@ -99,7 +94,6 @@ class CourseCategory(models.Model):
         return self.CourseCategoryName
 
 
-# ==================== Course ====================
 class Course(models.Model):
     ID = models.SmallAutoField(primary_key=True, db_column='ID')
     CourseCode = models.IntegerField(db_column='CourseCode', verbose_name="کد دوره")
@@ -123,7 +117,7 @@ class Course(models.Model):
         return self.CourseName
 
 
-# ==================== StudentCourseTeacher ====================
+
 class StudentCourseTeacher(models.Model):
     id = models.AutoField(primary_key=True, db_column='id')  # ← id واقعی
     StudentID = models.ForeignKey(Student, on_delete=models.DO_NOTHING, db_column='StudentID', verbose_name="دانشجو")
@@ -143,7 +137,7 @@ class StudentCourseTeacher(models.Model):
         return f"{self.StudentID.PersonID.PersianFirstName} - {self.CourseID.CourseName}"
 
 
-# ==================== Certification ====================
+
 class Certification(models.Model):
     ID = models.AutoField(primary_key=True, db_column='ID')
     CertificationTitle = models.CharField(max_length=70, db_column='CertificationTitle', verbose_name="عنوان مدرک")
@@ -161,7 +155,6 @@ class Certification(models.Model):
         return self.CertificationTitle
 
 
-# ==================== TeacherCertification ====================
 class TeacherCertification(models.Model):
     TeacherID = models.ForeignKey(Teacher, on_delete=models.DO_NOTHING, db_column='TeacherID', verbose_name="استاد")
     CertificationID = models.ForeignKey(Certification, on_delete=models.DO_NOTHING, db_column='CertificationID', verbose_name="مدرک")
@@ -180,12 +173,11 @@ class TeacherCertification(models.Model):
 
 
 class Exam(models.Model):
-    # ✅ اینجا صریحاً نوع رو smallint تعیین می‌کنیم تا با Course.ID هماهنگ باشه
     Course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
         db_column='Course_id',
-        to_field='ID', # اشاره به همون فیلد ID
+        to_field='ID',
         verbose_name="دوره"
     )
     Title = models.CharField(max_length=100, verbose_name="عنوان آزمون")
@@ -199,13 +191,12 @@ class Exam(models.Model):
         return f"{self.Title} - {self.Course.CourseName}"
 
 class ExamScore(models.Model):
-    # نمره هر دانشجو در یک آزمون خاص
     Exam = models.ForeignKey(Exam, on_delete=models.CASCADE, verbose_name="آزمون")
     Student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name="دانشجو")
     Score = models.FloatField(verbose_name="نمره کسب شده")
 
     class Meta:
-        unique_together = ('Exam', 'Student') # هر دانشجو در هر آزمون فقط یک نمره
+        unique_together = ('Exam', 'Student')
 
     def __str__(self):
         return f"{self.Student.PersonID.PersianFirstName} - {self.Exam.Title}"

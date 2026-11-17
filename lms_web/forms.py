@@ -41,9 +41,7 @@ class TeacherForm(forms.ModelForm):
     Sex = forms.ChoiceField(label="جنسیت", choices=SEX_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
 
     class TeacherForm(forms.ModelForm):
-        # ... بقیه فیلدها ...
 
-        # تاریخ تولد میلادی
         Birthdate = forms.DateField(
             label="تاریخ تولد (میلادی)",
             widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
@@ -150,7 +148,7 @@ class GradeForm(forms.Form):
     StudentID = forms.ModelChoiceField(
         queryset=Student.objects.select_related('PersonID').all(),
         label="دانشجو",
-        empty_label="",  # <--- این خط رو حتماً اضافه کن (یا خالی بذار)
+        empty_label="",
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_student_select'})
     )
     CourseName = forms.CharField(label="دوره", required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': True, 'id': 'id_course_display'}))
@@ -174,7 +172,6 @@ class CertificationForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
-    # تاریخ صدور (میلادی)
     Startdate = forms.DateField(
         label="تاریخ صدور (میلادی)",
         widget=forms.DateInput(attrs={

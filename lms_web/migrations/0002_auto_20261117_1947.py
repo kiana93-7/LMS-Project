@@ -1,10 +1,10 @@
 from django.db import migrations, models
-import django.db.models.deletion  # <--- این خط رو حتماً اضافه کن
+import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lms_web', '0001_initial'), # اسم آخرین مایگریشن موفق قبلیت رو بذار (مثلاً 0001_initial)
+        ('lms_web', '0001_initial'),
     ]
 
     operations = [
